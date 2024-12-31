@@ -1,28 +1,31 @@
-// getBootloader.js
-// Will query PKC unit to get the current bootloader version (F183)
+// getPKCHW.js
+// Will query PKC unit to get the current PKC HW number (F191)
 
-var bootloader='';
+var result='';
 
 function setup ()
 {
-    host.log("Starting Current Bootloader...");
+    host.log("Starting Current PKC SW Number...");
     // set filter for all PKC IDs (7AA and 7A2)
     can.setFilter(0x7A0, 0x7F0, 0);
-    can.sendFrame(0, 0x7A2, 8, [0x03, 0x22, 0xF1, 0x83, 0x55, 0x55, 0x55, 0x55]);
+    can.sendFrame(0, 0x7A2, 8, [0x03, 0x22, 0xF1, 0x91, 0x55, 0x55, 0x55, 0x55]);
 }
 
 function gotCANFrame (bus, id, len, data)
 {
     if (len == 8 && id == 0x7AA && data[0] == 0x10)
     {
-        bootloader+= hex_to_ascii(data[5].toString(16)) + hex_to_ascii(data[6].toString(16)) + hex_to_ascii(data[7].toString(16));
+        result+= hex_to_ascii(data[5].toString(16)) + hex_to_ascii(data[6].toString(16)) + hex_to_ascii(data[7].toString(16));
         // send follow-up message to get rest of result
         can.sendFrame(0, 0x7A2, 8, [0x30, 0x0A, 0x0A, 0x55, 0x55, 0x55, 0x55, 0x55]);
     }
     if (len == 8 && id == 0x7AA && data[0] == 0x21) 
     {
-        bootloader+= hex_to_ascii(data[1].toString(16)) + hex_to_ascii(data[2].toString(16)) + hex_to_ascii(data[3].toString(16)) + hex_to_ascii(data[4].toString(16)) + hex_to_ascii(data[5].toString(16)) + hex_to_ascii(data[6].toString(16)) + hex_to_ascii(data[7].toString(16));
-        host.log("PKC Bootloader version: " + bootloader);
+        result+= hex_to_ascii(data[1].toString(16)) + hex_to_ascii(data[2].toString(16)) + hex_to_ascii(data[3].toString(16)) + hex_to_ascii(data[4].toString(16)) + hex_to_ascii(data[5].toString(16)) + hex_to_ascii(data[6].toString(16)) + hex_to_ascii(data[7].toString(16));
+    }
+    if (len == 8 && id == 0x7AA && data[0] == 0x22) {
+        result+= hex_to_ascii(data[1].toString(16)) + hex_to_ascii(data[2].toString(16)) + hex_to_ascii(data[3].toString(16));
+        host.log("PKC HW Number: " + result);
     }
 }
 
