@@ -5,7 +5,7 @@ var result='';
 
 function setup ()
 {
-    host.log("Starting Current PKC SW Number...");
+    host.log("Starting Current PKC SW Version...");
     // set filter for all PKC IDs (7AA and 7A2)
     can.setFilter(0x7A0, 0x7F0, 0);
     can.sendFrame(0, 0x7A2, 8, [0x03, 0x22, 0xF1, 0x95, 0x55, 0x55, 0x55, 0x55]);
